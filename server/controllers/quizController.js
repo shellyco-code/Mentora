@@ -1,0 +1,121 @@
+import { db } from '../config/firebaseConfig.js'
+import aiService from '../services/aiService.js'
+
+const MAX_RETRIES = 3
+
+export const getQuestions = async (req, res) => {
+  try {
+    const userId = req.user.uid
+    const { career } = req.query
+    if (!career) {
+      return res.status(400).json({ error: 'Career parameter is required' })
+    }
+
+    // Adaptive difficulty based on previous score
+    let difficulty = 'intermediate'
+    try {
+      const lastQuizSnap = await db.collection('quizResults')
+        .where('userId', '==', userId)
+        .limit(1)
+        .get()
+
+      if (!lastQuizSnap.empty) {
+        const lastScore = lastQuizSnap.docs[0].data()?.results?.score || 0
+        if (lastScore > 80) difficulty = 'advanced'
+        else if (lastScore < 40) difficulty = 'beginner'
+      }
+    } catch (err) {
+      console.warn('Could not fetch last quiz score for difficulty:', err.message)
+    }
+
+    let lastError = null
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const result = await aiService.generateQuizQuestions(career, difficulty)
+        console.log(`Quiz attempt ${attempt} raw result keys:`, Object.keys(result || {}))
+        const questions = result?.questions
+
+        // Validate the AI actually returned a usable questions array
+        if (Array.isArray(questions) && questions.length > 0) {
+          return res.json(result)
+        }
+
+        console.warn(`Quiz attempt ${attempt}/${MAX_RETRIES}: AI returned invalid questions (got ${questions?.length ?? 'none'})`, JSON.stringify(result)?.slice(0, 300))
+        lastError = new Error('AI returned empty or invalid questions array')
+      } catch (err) {
+        console.warn(`Quiz attempt ${attempt}/${MAX_RETRIES} failed:`, err?.message)
+        lastError = err
+      }
+    }
+
+    // All retries exhausted
+    console.error('Get questions error: all retries failed')
+    res.status(500).json({ error: lastError?.message || 'Failed to generate questions after multiple attempts' })
+  } catch (error) {
+    console.error('Get questions error:', error?.message || error)
+    res.status(500).json({ error: error?.message || 'Failed to generate questions' })
+  }
+}
+
+export const submitQuiz = async (req, res) => {
+  try {
+    const userId = req.user.uid
+    const { answers, questions } = req.body
+
+    if (!answers || !questions) {
+      return res.status(400).json({ error: 'Answers and questions are required' })
+    }
+
+    let results = null
+    let lastError = null
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        results = await aiService.evaluateQuizResults(questions, answers)
+        if (typeof results?.score === 'number') break
+        lastError = new Error('AI returned invalid evaluation format')
+        results = null
+      } catch (err) {
+        lastError = err
+      }
+    }
+
+    if (!results) {
+      console.error('Submit quiz evaluation failed after retries:', lastError)
+      return res.status(500).json({ error: 'Failed to evaluate quiz due to AI error' })
+    }
+
+    const quizResult = {
+      userId,
+      questions,
+      answers,
+      results,
+      createdAt: new Date().toISOString()
+    }
+
+    await db.collection('quizResults').add(quizResult)
+
+    // Update user doc only if it exists
+    const userDoc = await db.collection('users').doc(userId).get()
+    if (userDoc.exists) {
+      await db.collection('users').doc(userId).update({
+        lastQuizScore: results.score,
+        quizTakenAt: new Date().toISOString()
+      })
+    }
+
+    // Update progress score
+    const progressDoc = await db.collection('progress').doc(userId).get()
+    if (progressDoc.exists) {
+      await db.collection('progress').doc(userId).update({
+        skillScore: results.score,
+        updatedAt: new Date().toISOString()
+      })
+    }
+
+    res.json(results)
+  } catch (error) {
+    console.error('Submit quiz error:', error)
+    res.status(500).json({ error: 'Failed to submit quiz' })
+  }
+}
