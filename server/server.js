@@ -15,10 +15,13 @@ dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 5000
 
+// CORS (Cross-Origin Resource Sharing): Security feature to allow only our specific frontend to talk to this backend
 app.use(cors({
   origin: process.env.CLIENT_URL || '*',
   credentials: true
 }))
+
+// Middleware: Converts incoming request bodies into JSON format
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

@@ -11,7 +11,7 @@ export const uploadResume = async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' })
     }
 
-    // Parse PDF text first so we can store it regardless of Storage availability
+    // File Parsing: Extracting raw text from the uploaded PDF buffer using pdf-parse library
     let resumeText = ''
     try {
       const pdfData = await pdfParse(file.buffer)
@@ -23,7 +23,7 @@ export const uploadResume = async (req, res) => {
     let url = null
     let fileName = null
 
-    // Try Firebase Storage — gracefully skip if not configured
+    // Cloud Storage: Uploading the physical file to Firebase Storage bucket for persistence
     try {
       const bucket = storage.bucket()
       fileName = `resumes/${userId}/${Date.now()}_${file.originalname}`
@@ -33,6 +33,7 @@ export const uploadResume = async (req, res) => {
         metadata: { contentType: file.mimetype }
       })
 
+      // Signed URL: Generating a temporary secure link to access the private file from frontend
       const [signedUrl] = await fileUpload.getSignedUrl({
         action: 'read',
         expires: '03-01-2500'
@@ -92,8 +93,10 @@ export const analyzeResume = async (req, res) => {
       return res.status(400).json({ error: 'No resume text found. Please upload your resume first.' })
     }
 
+    // AI Orchestration: Sending the extracted resume text and profile to the AI service for analysis
     const analysis = await aiService.analyzeResume(resumeText, userData)
 
+    // Atomic Update: Saving the AI results into the user's document in Firestore
     await db.collection('users').doc(userId).set({
       resumeAnalysis: analysis,
       analyzedAt: new Date().toISOString()

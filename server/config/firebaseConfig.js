@@ -8,11 +8,11 @@ const __dirname = dirname(__filename)
 
 let serviceAccount
 
-// Production: load from environment variable (Render, Railway, etc.)
+// Hybrid Security: Supports both Cloud (Env Var) and Local (JSON file) credentials
 if (process.env.FIREBASE_SERVICE_ACCOUNT) {
   serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
 } else {
-  // Local development: load from file
+  // Local environment: Uses private key file ignored by Git for security
   const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH || './serviceAccountKey.json'
   const fullPath = join(__dirname, '..', serviceAccountPath)
   if (!existsSync(fullPath)) {

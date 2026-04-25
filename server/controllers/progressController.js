@@ -60,16 +60,17 @@ export const generateDailyTasks = async (req, res) => {
       .get()
     if (!roadmapSnap.empty) roadmap = roadmapSnap.docs[0].data()
 
-    // Generate tasks via AI with retry
+    // Retry Logic: Attempts the request multiple times to handle transient AI failures (Resiliency)
     let lastError = null
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
         const result = await aiService.generateDailyTasks(profile, quizResults, roadmap)
+        // Debugging: Logging object keys to verify AI response structure
         console.log(`Tasks attempt ${attempt} raw result keys:`, Object.keys(result || {}))
         const tasks = result?.tasks
 
         if (Array.isArray(tasks) && tasks.length > 0) {
-          // Ensure each task has required fields
+          // Data Normalization: Ensures every task has a consistent structure with default values
           const normalizedTasks = tasks.map((t, i) => ({
             id: t.id || `t${i + 1}`,
             title: t.title || `Task ${i + 1}`,
