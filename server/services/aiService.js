@@ -1,10 +1,13 @@
 import { getGeminiModel } from '../config/geminiConfig.js'
 
+// AI Service: Central class for orchestrating calls to Google Gemini Generative AI
 class AIService {
+  // getModel: Fetches the configured Gemini model (Flash 1.5) from centralized config
   getModel() {
     return getGeminiModel()
   }
 
+  // chat: Low-level utility to send a raw prompt and receive a string response from AI
   async chat(prompt) {
     const model = this.getModel()
     try {
@@ -41,17 +44,21 @@ Format as valid JSON only.
   }
 
   async generateQuizQuestions(career, difficulty = 'intermediate') {
-    const prompt = `Generate 10 technical quiz questions for a ${career} position at ${difficulty} level.
-
-Return ONLY valid JSON. No markdown. No explanation. No extra text. Just the JSON object below:
-{"questions":[{"id":"q1","question":"Question text here","options":["Option A","Option B","Option C","Option D"],"correctAnswer":"Option A","topic":"Topic name"}]}
-
-Rules:
-- Exactly 10 questions
-- Each question has exactly 4 options
-- correctAnswer must exactly match one of the options
-- Focus on practical real-world scenarios
-- Return ONLY the JSON, nothing else`
+    const seed = Math.floor(Math.random() * 1000000)
+    const prompt = `Generate 10 unique technical quiz questions for a ${career} position at ${difficulty} level.
+    
+    Context Seed: ${seed}
+    
+    Return ONLY valid JSON. No markdown. No explanation. No extra text. Just the JSON object below:
+    {"questions":[{"id":"q1","question":"Question text here","options":["Option A","Option B","Option C","Option D"],"correctAnswer":"Option A","topic":"Topic name"}]}
+    
+    Rules:
+    - Exactly 10 questions
+    - Each question has exactly 4 options
+    - correctAnswer must exactly match one of the options
+    - Focus on diverse, real-world practical scenarios (avoid generic definitions)
+    - Ensure questions are unique and varied. Do not repeat common basic questions.
+    - Return ONLY the JSON, nothing else`
     const text = await this.chat(prompt)
     const parsed = this.parseJSON(text)
     return this.normalizeQuizResponse(parsed)
@@ -286,20 +293,21 @@ Create 5-8 relevant job listings. Format as valid JSON only.
     return this.parseJSON(text)
   }
 
+  // parseJSON: Crucial utility to clean and extract valid JSON from messy AI text responses
   parseJSON(text) {
     try {
-      // Strip markdown code fences
+      // Sanitization: Remove Markdown code fences (```json) that AI often adds
       let stripped = text
         .replace(/```json\s*/gi, '')
         .replace(/```\s*/g, '')
         .trim()
 
-      // Remove trailing commas before } or ]
+      // Regex Fix: Remove illegal trailing commas before closing braces/brackets
       stripped = stripped.replace(/,\s*([}\]])/g, '$1')
-      // Normalize newlines
+      // Flattening: Convert multi-line responses into a single string for parsing
       stripped = stripped.replace(/\n/g, ' ')
 
-      // Try direct parse first
+      // Attempt 1: Direct parsing of the cleaned string
       try {
         return JSON.parse(stripped)
       } catch { }

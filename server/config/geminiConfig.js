@@ -11,7 +11,15 @@ if (!API_KEY) {
 const genAI = new GoogleGenerativeAI(API_KEY)
 
 export const getGeminiModel = () => {
-  return genAI.getGenerativeModel({ model: 'gemma-3-4b-it' })
+  return genAI.getGenerativeModel({ 
+    model: 'gemma-3-4b-it',
+    generationConfig: {
+      temperature: 0.9,
+      topP: 0.95,
+      topK: 40,
+      maxOutputTokens: 2048,
+    }
+  })
 }
 
 export default genAI

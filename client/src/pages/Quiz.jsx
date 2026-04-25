@@ -15,6 +15,7 @@ const Quiz = () => {
   const [error, setError] = useState(null)
   const [career, setCareer] = useState('Full Stack Developer')
   const [retryCount, setRetryCount] = useState(0)
+  const [currentDifficulty, setCurrentDifficulty] = useState('intermediate')
 
   useEffect(() => { fetchQuestions() }, [])
 
@@ -25,6 +26,7 @@ const Quiz = () => {
     setError(null)
     setRetryCount(retries)
     setQuestions([])
+    setResult(null)
     setCurrent(0)
     setAnswers({})
     try {
@@ -42,11 +44,13 @@ const Quiz = () => {
 
       const res = await quizAPI.getQuestions(targetCareer)
       const qs = res.data?.questions
+      const diff = res.data?.difficulty || 'intermediate'
 
       if (!qs || !Array.isArray(qs) || qs.length === 0) {
         throw new Error('No questions returned from server')
       }
       setQuestions(qs)
+      setCurrentDifficulty(diff)
     } catch (err) {
       console.error(`Quiz load error (attempt ${retries + 1}):`, err)
 
@@ -126,7 +130,11 @@ const Quiz = () => {
             <span className="text-3xl font-bold text-primary">{result.score}%</span>
           </div>
           <p className="text-white font-semibold text-lg">Quiz Complete</p>
-          <p className="text-gray-500 text-sm mt-1">{career}</p>
+          <div className="flex items-center justify-center gap-2 mt-1">
+            <p className="text-gray-500 text-sm">{career}</p>
+            <span className="w-1 h-1 rounded-full bg-gray-700" />
+            <p className="text-primary text-sm font-medium capitalize">{currentDifficulty} Level</p>
+          </div>
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
@@ -167,7 +175,8 @@ const Quiz = () => {
 
         <div className="flex gap-3">
           <button onClick={() => fetchQuestions(0)} className="btn-secondary flex-1 text-sm">
-            Retake Quiz
+            {result.score > 80 ? 'Level Up: Next Challenge 🚀' : 
+             result.score > 40 ? 'Improve Your Score 📈' : 'Retry Basics 🔄'}
           </button>
           <a href="/roadmap" className="btn-primary flex-1 text-sm text-center">
             View Roadmap →

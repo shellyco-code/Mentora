@@ -16,9 +16,11 @@ export const getQuestions = async (req, res) => {
     try {
       const lastQuizSnap = await db.collection('quizResults')
         .where('userId', '==', userId)
+        .orderBy('createdAt', 'desc')
         .limit(1)
         .get()
 
+      // Adaptive Difficulty: Adjusting the quiz level based on the user's previous performance (Personalization)
       if (!lastQuizSnap.empty) {
         const lastScore = lastQuizSnap.docs[0].data()?.results?.score || 0
         if (lastScore > 80) difficulty = 'advanced'
@@ -37,7 +39,7 @@ export const getQuestions = async (req, res) => {
 
         // Validate the AI actually returned a usable questions array
         if (Array.isArray(questions) && questions.length > 0) {
-          return res.json(result)
+          return res.json({ ...result, difficulty })
         }
 
         console.warn(`Quiz attempt ${attempt}/${MAX_RETRIES}: AI returned invalid questions (got ${questions?.length ?? 'none'})`, JSON.stringify(result)?.slice(0, 300))
@@ -85,6 +87,7 @@ export const submitQuiz = async (req, res) => {
       return res.status(500).json({ error: 'Failed to evaluate quiz due to AI error' })
     }
 
+    // Data Persistence: Storing the quiz attempt details in the 'quizResults' collection
     const quizResult = {
       userId,
       questions,
@@ -95,7 +98,7 @@ export const submitQuiz = async (req, res) => {
 
     await db.collection('quizResults').add(quizResult)
 
-    // Update user doc only if it exists
+    // Profile Enrichment: Updating the main user document with the latest score for tracking
     const userDoc = await db.collection('users').doc(userId).get()
     if (userDoc.exists) {
       await db.collection('users').doc(userId).update({
@@ -104,14 +107,11 @@ export const submitQuiz = async (req, res) => {
       })
     }
 
-    // Update progress score
-    const progressDoc = await db.collection('progress').doc(userId).get()
-    if (progressDoc.exists) {
-      await db.collection('progress').doc(userId).update({
-        skillScore: results.score,
-        updatedAt: new Date().toISOString()
-      })
-    }
+    // Gamification: Synchronizing the skill score with the user's overall progress dashboard
+    await db.collection('progress').doc(userId).set({
+      skillScore: results.score,
+      updatedAt: new Date().toISOString()
+    }, { merge: true })
 
     res.json(results)
   } catch (error) {
