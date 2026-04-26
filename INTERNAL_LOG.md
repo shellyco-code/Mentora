@@ -44,3 +44,4 @@
 - Update: Update internal styling guidelines
 - Update: Clean up unused imports
 - Update: Improve error handling in API calls
+- Update: Add loading skeleton for better UX
