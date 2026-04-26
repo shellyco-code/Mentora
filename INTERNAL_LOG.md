@@ -43,3 +43,4 @@
 - Update: Fix typo in variable names
 - Update: Update internal styling guidelines
 - Update: Clean up unused imports
+- Update: Improve error handling in API calls
