@@ -48,3 +48,4 @@
 - Update: Tweak primary color shade for accessibility
 - Update: Refactor state management in Quiz component
 - Update: Update package dependencies
+- Update: Fix mobile responsiveness on Profile page
