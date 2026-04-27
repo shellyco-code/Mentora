@@ -51,3 +51,4 @@
 - Update: Fix mobile responsiveness on Profile page
 - Update: Add tooltip for disabled buttons
 - Update: Improve accessibility of navigation menu
+- Update: Refactor helper functions into separate utility file
