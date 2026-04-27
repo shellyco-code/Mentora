@@ -47,3 +47,4 @@
 - Update: Add loading skeleton for better UX
 - Update: Tweak primary color shade for accessibility
 - Update: Refactor state management in Quiz component
+- Update: Update package dependencies
