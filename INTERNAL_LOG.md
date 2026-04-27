@@ -46,3 +46,4 @@
 - Update: Improve error handling in API calls
 - Update: Add loading skeleton for better UX
 - Update: Tweak primary color shade for accessibility
+- Update: Refactor state management in Quiz component
