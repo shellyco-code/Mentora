@@ -53,3 +53,4 @@
 - Update: Improve accessibility of navigation menu
 - Update: Refactor helper functions into separate utility file
 - Update: Fix console warnings during development
+- Update: Update error messages for better clarity
