@@ -59,3 +59,4 @@
 - Update: Fix alignment issue in footer
 - Update: Update README prerequisites section
 - Update: Refactor progress calculation logic
+- Update: Add fallback for empty state in Roadmap
