@@ -55,3 +55,4 @@
 - Update: Fix console warnings during development
 - Update: Update error messages for better clarity
 - Update: Optimize SVG icons size
+- Update: Add hover effects to primary buttons
