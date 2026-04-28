@@ -54,3 +54,4 @@
 - Update: Refactor helper functions into separate utility file
 - Update: Fix console warnings during development
 - Update: Update error messages for better clarity
+- Update: Optimize SVG icons size
