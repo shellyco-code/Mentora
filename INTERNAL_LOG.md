@@ -58,3 +58,4 @@
 - Update: Add hover effects to primary buttons
 - Update: Fix alignment issue in footer
 - Update: Update README prerequisites section
+- Update: Refactor progress calculation logic
