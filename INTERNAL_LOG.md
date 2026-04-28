@@ -56,3 +56,4 @@
 - Update: Update error messages for better clarity
 - Update: Optimize SVG icons size
 - Update: Add hover effects to primary buttons
+- Update: Fix alignment issue in footer
