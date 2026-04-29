@@ -65,3 +65,4 @@
 - Update: Update transition animations
 - Update: Add comments to complex regex logic
 - Update: Fix case sensitivity in search filters
+- Update: Refactor Firebase configuration export
