@@ -66,3 +66,4 @@
 - Update: Add comments to complex regex logic
 - Update: Fix case sensitivity in search filters
 - Update: Refactor Firebase configuration export
+- Update: Update placeholder text in input fields
