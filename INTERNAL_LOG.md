@@ -61,3 +61,4 @@
 - Update: Refactor progress calculation logic
 - Update: Add fallback for empty state in Roadmap
 - Update: Improve performance of resume parsing
+- Update: Fix spacing in job cards
