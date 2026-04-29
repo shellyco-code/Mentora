@@ -62,3 +62,4 @@
 - Update: Add fallback for empty state in Roadmap
 - Update: Improve performance of resume parsing
 - Update: Fix spacing in job cards
+- Update: Update transition animations
