@@ -64,3 +64,4 @@
 - Update: Fix spacing in job cards
 - Update: Update transition animations
 - Update: Add comments to complex regex logic
+- Update: Fix case sensitivity in search filters
