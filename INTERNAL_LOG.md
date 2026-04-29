@@ -63,3 +63,4 @@
 - Update: Improve performance of resume parsing
 - Update: Fix spacing in job cards
 - Update: Update transition animations
+- Update: Add comments to complex regex logic
