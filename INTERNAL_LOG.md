@@ -69,3 +69,4 @@
 - Update: Update placeholder text in input fields
 - Update: Improve contrast ratio for subheadings
 - Update: Add debounce to search input
+- Update: Fix z-index issue on modal overlay
