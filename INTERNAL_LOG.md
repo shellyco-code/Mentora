@@ -70,3 +70,4 @@
 - Update: Improve contrast ratio for subheadings
 - Update: Add debounce to search input
 - Update: Fix z-index issue on modal overlay
+- Update: Update default career options array
