@@ -67,3 +67,4 @@
 - Update: Fix case sensitivity in search filters
 - Update: Refactor Firebase configuration export
 - Update: Update placeholder text in input fields
+- Update: Improve contrast ratio for subheadings
