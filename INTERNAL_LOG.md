@@ -76,3 +76,4 @@
 - Update: Improve layout shift on image load
 - Update: Fix margin collapse on section headers
 - Update: Update typography line height
+- Update: Refactor API request interceptors
