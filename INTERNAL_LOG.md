@@ -74,3 +74,4 @@
 - Update: Refactor date formatting logic
 - Update: Add unit test placeholder
 - Update: Improve layout shift on image load
+- Update: Fix margin collapse on section headers
