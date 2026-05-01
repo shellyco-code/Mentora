@@ -73,3 +73,4 @@
 - Update: Update default career options array
 - Update: Refactor date formatting logic
 - Update: Add unit test placeholder
+- Update: Improve layout shift on image load
