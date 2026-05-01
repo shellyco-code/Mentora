@@ -77,3 +77,4 @@
 - Update: Fix margin collapse on section headers
 - Update: Update typography line height
 - Update: Refactor API request interceptors
+- Update: Finalize internal structure for beta release
