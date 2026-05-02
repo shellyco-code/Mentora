@@ -71,7 +71,14 @@ const Jobs = () => {
                   ))}
                 </div>
 
-                <button className="btn-primary text-sm py-2 px-5">Apply Now</button>
+                <a 
+                  href={job.link || '#'} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="btn-primary text-sm py-2 px-5 inline-block text-center"
+                >
+                  Apply Now
+                </a>
               </div>
             ))}
           </div>
