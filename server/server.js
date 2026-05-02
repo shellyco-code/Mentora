@@ -8,6 +8,7 @@ import quizRoutes from './routes/quizRoutes.js'
 import roadmapRoutes from './routes/roadmapRoutes.js'
 import progressRoutes from './routes/progressRoutes.js'
 import jobRoutes from './routes/jobRoutes.js'
+import recommendationRoutes from './routes/recommendationRoutes.js'
 import { verifyToken } from './middlewares/authMiddleware.js'
 
 dotenv.config()
@@ -36,6 +37,7 @@ app.use('/api/quiz', verifyToken, quizRoutes)
 app.use('/api/roadmap', verifyToken, roadmapRoutes)
 app.use('/api/progress', verifyToken, progressRoutes)
 app.use('/api/jobs', verifyToken, jobRoutes)
+app.use('/api/recommendations', verifyToken, recommendationRoutes)
 
 app.use((err, req, res, next) => {
   console.error(err.stack)

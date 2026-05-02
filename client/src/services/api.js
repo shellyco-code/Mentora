@@ -53,4 +53,8 @@ export const jobsAPI = {
   getRecommendations: () => api.get('/jobs/recommendations')
 }
 
+export const recommendationsAPI = {
+  getLearning: () => api.get('/recommendations')
+}
+
 export default api
