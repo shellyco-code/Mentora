@@ -107,10 +107,27 @@ const Roadmap = () => {
                             <p className="text-sm font-medium text-gray-200">{task.title}</p>
                             <p className="text-xs text-gray-600 mt-0.5">{task.description}</p>
                             {task.resources?.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mt-1.5">
-                                {task.resources.map((r, ri) => (
-                                  <span key={ri} className="text-xs text-primary/70 bg-primary/5 border border-primary/10 px-2 py-0.5 rounded">{r}</span>
-                                ))}
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {task.resources.map((r, ri) => {
+                                  // Support both formats: string (old) and object with name+url (new)
+                                  const isObj = typeof r === 'object' && r !== null
+                                  const label = isObj ? r.name : r
+                                  const url = isObj ? r.url : `https://www.google.com/search?q=${encodeURIComponent(r + ' tutorial')}`
+                                  return (
+                                    <a
+                                      key={ri}
+                                      href={url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 hover:border-primary/40 transition-all cursor-pointer"
+                                    >
+                                      <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                      </svg>
+                                      {label}
+                                    </a>
+                                  )
+                                })}
                               </div>
                             )}
                           </div>
