@@ -16,7 +16,6 @@ export const getQuestions = async (req, res) => {
     try {
       const lastQuizSnap = await db.collection('quizResults')
         .where('userId', '==', userId)
-        .orderBy('createdAt', 'desc')
         .limit(1)
         .get()
 
