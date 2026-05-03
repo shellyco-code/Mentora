@@ -164,11 +164,15 @@ Format as valid JSON only.
 Skills: ${profile.skills || 'beginner'}, Experience: ${profile.experience || 'fresher'}, Quiz Score: ${quizResults?.score || 'not taken'}.
 
 Return ONLY valid JSON. No markdown. No explanation:
-{"title":"Roadmap title","description":"Overview","phases":[{"title":"Phase name","duration":"Month 1-2","tasks":[{"title":"Task name","description":"What to do","resources":["resource1"]}]}]}
+{"title":"Roadmap title","description":"Overview","phases":[{"title":"Phase name","duration":"Month 1-2","tasks":[{"title":"Task name","description":"What to do","resources":[{"name":"freeCodeCamp - HTML Basics","url":"https://www.freecodecamp.org/learn/responsive-web-design/"}]}]}]}
 
 Rules:
 - 4 to 6 phases
 - 3 to 5 tasks per phase
+- Each task MUST have 1 to 3 resources
+- Each resource MUST be a JSON object with "name" (human readable label) and "url" (real working URL)
+- Use REAL URLs from these platforms: freeCodeCamp (freecodecamp.org), MDN Web Docs (developer.mozilla.org), YouTube tutorials (youtube.com), W3Schools (w3schools.com), JavaScript.info (javascript.info), React docs (react.dev), Node.js docs (nodejs.org), MongoDB University (learn.mongodb.com), Codecademy (codecademy.com), GeeksforGeeks (geeksforgeeks.org)
+- URLs must be real, working links to actual pages on these websites
 - Return ONLY the JSON, nothing else`
     const text = await this.chat(prompt)
     const parsed = this.parseJSON(text)
@@ -282,7 +286,8 @@ Generate JSON with realistic job listings:
       "salary": "Salary range",
       "description": "Job description",
       "skills": ["Required skills"],
-      "matchScore": 85
+      "matchScore": 85,
+      "link": "https://www.linkedin.com/jobs/search/?keywords=JobTitle"
     }
   ]
 }
