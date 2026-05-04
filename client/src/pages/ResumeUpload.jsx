@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import DashboardLayout from '../components/layout/DashboardLayout'
-import { resumeAPI } from '../services/api'
+import { resumeAPI, recommendationsAPI } from '../services/api'
 
 const CACHE_KEYS = {
   analysis: 'mentora_resume_analysis',
@@ -28,6 +28,8 @@ const ResumeUpload = () => {
   const [analyzing, setAnalyzing] = useState(false)
   const [analysis, setAnalysis] = useState(() => getCache(CACHE_KEYS.analysis))
   const [savedInfo, setSavedInfo] = useState(() => getCache(CACHE_KEYS.savedInfo))
+  const [resources, setResources] = useState([])
+  const [loadingResources, setLoadingResources] = useState(false)
   const [loading, setLoading] = useState(() => {
     // If we already have cached data, skip the loading spinner
     return !getCache(CACHE_KEYS.analysis)
@@ -38,6 +40,22 @@ const ResumeUpload = () => {
   // Persist analysis & savedInfo to localStorage whenever they change
   useEffect(() => { setCache(CACHE_KEYS.analysis, analysis) }, [analysis])
   useEffect(() => { setCache(CACHE_KEYS.savedInfo, savedInfo) }, [savedInfo])
+
+  const fetchResources = async () => {
+    setLoadingResources(true)
+    try {
+      const res = await recommendationsAPI.getLearning()
+      setResources(res.data.courses || [])
+    } catch (err) {
+      console.error('Failed to fetch learning resources')
+    } finally {
+      setLoadingResources(false)
+    }
+  }
+
+  useEffect(() => {
+    if (analysis) fetchResources()
+  }, [])
 
   const loadSavedAnalysis = useCallback(async () => {
     try {
@@ -95,6 +113,7 @@ const ResumeUpload = () => {
       })
       setFile(null)
       setMessage({ text: 'Analysis complete!', type: 'success' })
+      fetchResources()
     } catch (err) {
       setMessage({ text: err?.response?.data?.error || 'Upload failed. Please try again.', type: 'error' })
     } finally {
@@ -230,7 +249,8 @@ const ResumeUpload = () => {
 
         {/* Analysis Results */}
         {analysis && (
-          <div className="space-y-4">
+          <>
+            <div className="space-y-4">
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Analysis Results</h2>
 
             <div className="card" style={{ background: 'linear-gradient(135deg, rgba(0,255,204,0.04), transparent)' }}>
@@ -242,7 +262,7 @@ const ResumeUpload = () => {
               <div className="card">
                 <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Identified Skills</h3>
                 <div className="flex flex-wrap gap-1.5">
-                  {analysis.skills?.map((s, i) => (
+                  {analysis.skills?.map((s, i) => ( 
                     <span key={i} className="badge bg-primary/10 border border-primary/20 text-primary">{s}</span>
                   ))}
                 </div>
@@ -264,12 +284,61 @@ const ResumeUpload = () => {
               <ul className="space-y-2">
                 {analysis.recommendations?.map((r, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                    <span className="text-primary mt-0.5 flex-shrink-0">✓</span> {r}
+                    <span className="text-primary mt-0.5 flex-shrink-0">✓</span> 
+                    <span>
+                      {r}
+                      <a 
+                        href={`https://www.youtube.com/results?search_query=${encodeURIComponent(r + ' tutorial')}`} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline ml-1.5 text-[11px] font-medium"
+                      >
+                        (Search Tutorials)
+                      </a>
+                    </span>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
+
+          {/* Real Learning Resources */}
+          <div className="card mt-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Real-World Learning Resources</h3>
+              {loadingResources && (
+                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              )}
+            </div>
+            
+            {resources.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {resources.map((res, i) => (
+                  <a 
+                    key={i} 
+                    href={res.link} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex gap-3 p-3 rounded-lg bg-gray-900/50 border border-gray-800 hover:border-primary/30 transition-all group"
+                  >
+                    {res.thumbnail && (
+                      <div className="w-24 h-16 flex-shrink-0 overflow-hidden rounded border border-gray-800">
+                        <img src={res.thumbnail} alt={res.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-medium text-white truncate group-hover:text-primary transition-colors">{res.title}</h4>
+                      <p className="text-xs text-gray-500 mt-1">{res.provider} • {res.type}</p>
+                      <span className="inline-block mt-2 px-1.5 py-0.5 rounded bg-gray-800 text-[10px] text-gray-400">For: {res.skill}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : !loadingResources && (
+              <p className="text-sm text-gray-600 text-center py-4">No specific video resources found. Use the "Search Tutorials" links above for direct results.</p>
+            )}
+            </div>
+          </>
         )}
       </div>
     </DashboardLayout>
