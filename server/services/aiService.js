@@ -40,7 +40,15 @@ Provide a JSON response with:
 Format as valid JSON only.
 `
     const text = await this.chat(prompt)
-    return this.parseJSON(text)
+    const parsed = this.parseJSON(text) || {}
+    
+    // Normalize to ensure skillGaps always exists properly
+    return {
+      summary: parsed.summary || parsed.overview || "Analysis complete.",
+      skills: Array.isArray(parsed.skills) ? parsed.skills : [],
+      skillGaps: Array.isArray(parsed.skillGaps) ? parsed.skillGaps : (Array.isArray(parsed.skill_gaps) ? parsed.skill_gaps : []),
+      recommendations: Array.isArray(parsed.recommendations) ? parsed.recommendations : []
+    }
   }
 
   async generateQuizQuestions(career, difficulty = 'intermediate') {
