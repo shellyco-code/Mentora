@@ -30,6 +30,10 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Mentora API is running' })
 })
 
+app.get('/api/version', (req, res) => {
+  res.json({ version: '1.0.5', updated: 'May 5 - YouTube Fix' })
+})
+
 app.use('/api/auth', authRoutes)
 app.use('/api/profile', verifyToken, profileRoutes)
 app.use('/api/resume', verifyToken, resumeRoutes)
