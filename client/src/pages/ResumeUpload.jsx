@@ -66,6 +66,7 @@ const ResumeUpload = () => {
         uploadedAt: res.data.uploadedAt,
         analyzedAt: res.data.analyzedAt
       })
+      fetchResources()
     } catch (err) {
       // No saved analysis found on server — keep local cache if present
       console.log('No saved analysis found on server')
@@ -130,6 +131,7 @@ const ResumeUpload = () => {
       setAnalysis(res.data)
       setSavedInfo(prev => ({ ...prev, analyzedAt: new Date().toISOString() }))
       setMessage({ text: 'Re-analysis complete!', type: 'success' })
+      fetchResources()
     } catch (err) {
       setMessage({ text: err?.response?.data?.error || 'Re-analysis failed. Please try again.', type: 'error' })
     } finally {
