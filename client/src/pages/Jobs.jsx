@@ -72,7 +72,7 @@ const Jobs = () => {
                 </div>
 
                 <a 
-                  href={job.link || `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent((job.title || 'developer') + ' ' + (job.company || ''))}`} 
+                  href={job.link || `https://www.linkedin.com/jobs/search/?keywords=${encodeURIComponent(job.title || 'developer')}`} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="btn-primary text-sm py-2 px-5 inline-block text-center"
