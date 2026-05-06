@@ -30,13 +30,20 @@ export const generateRoadmap = async (req, res) => {
 
     let roadmap;
     try {
-      roadmap = await aiService.generateRoadmap(userData, quizData)
+      // Race the AI call against a 10-second timeout for the presentation
+      const aiPromise = aiService.generateRoadmap(userData, quizData)
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('AI Generation Timeout')), 10000)
+      )
+      
+      roadmap = await Promise.race([aiPromise, timeoutPromise])
+      
       // Check if AI actually returned a valid roadmap structure
       if (!roadmap || !roadmap.phases || !Array.isArray(roadmap.phases) || roadmap.phases.length === 0) {
         throw new Error('AI returned empty or invalid roadmap structure')
       }
     } catch (aiError) {
-      console.warn('Roadmap AI generation failed, using emergency mock fallback:', aiError.message)
+      console.warn('Roadmap AI generation failed or timed out, using emergency mock fallback:', aiError.message)
       roadmap = {
         title: `Career Roadmap for ${userData.targetCareer || 'Software Developer'}`,
         description: "A comprehensive 6-month plan to master the skills required for your target role.",
@@ -83,7 +90,28 @@ export const generateRoadmap = async (req, res) => {
     res.json(roadmap)
   } catch (error) {
     console.error('Generate roadmap error:', error.message || error)
-    res.status(500).json({ error: error.message || 'Failed to generate roadmap' })
+    // Even if Firestore save fails, return a mock roadmap so the UI never breaks
+    res.json({
+      title: 'Career Roadmap for Software Developer',
+      description: 'A comprehensive 6-month plan to master the skills required for your target role.',
+      phases: [
+        { title: 'Phase 1: Core Fundamentals', duration: 'Month 1-2', tasks: [
+          { title: 'Master JavaScript ES6+', description: 'Deep dive into closures, promises, and async/await.' },
+          { title: 'React Hooks & State', description: 'Master useState, useEffect, and custom hooks.' },
+          { title: 'CSS Mastery', description: 'Learn Flexbox, Grid, and responsive design patterns.' }
+        ]},
+        { title: 'Phase 2: Backend & APIs', duration: 'Month 3-4', tasks: [
+          { title: 'Node.js & Express', description: 'Build scalable server-side applications.' },
+          { title: 'Database Integration', description: 'Connect and query MongoDB or Firebase Firestore.' },
+          { title: 'RESTful API Design', description: 'Implement secure and efficient API endpoints.' }
+        ]},
+        { title: 'Phase 3: Deployment & Scale', duration: 'Month 5-6', tasks: [
+          { title: 'Docker & Containerization', description: 'Learn to containerize and deploy applications.' },
+          { title: 'System Design', description: 'Understand load balancing, caching, and scalability.' },
+          { title: 'Portfolio Project', description: 'Build and deploy a complex full-stack application.' }
+        ]}
+      ]
+    })
   }
 }
 
