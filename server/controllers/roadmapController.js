@@ -31,6 +31,10 @@ export const generateRoadmap = async (req, res) => {
     let roadmap;
     try {
       roadmap = await aiService.generateRoadmap(userData, quizData)
+      // Check if AI actually returned a valid roadmap structure
+      if (!roadmap || !roadmap.phases || !Array.isArray(roadmap.phases) || roadmap.phases.length === 0) {
+        throw new Error('AI returned empty or invalid roadmap structure')
+      }
     } catch (aiError) {
       console.warn('Roadmap AI generation failed, using emergency mock fallback:', aiError.message)
       roadmap = {
