@@ -49,9 +49,16 @@ export const getQuestions = async (req, res) => {
       }
     }
 
-    // All retries exhausted
-    console.error('Get questions error: all retries failed')
-    res.status(500).json({ error: lastError?.message || 'Failed to generate questions after multiple attempts' })
+    // All retries exhausted - Emergency Mock Fallback for Presentation
+    console.error('Get questions error: all retries failed. Using mock fallback.')
+    const mockQuestions = [
+      { id: 'q1', question: 'What is the primary purpose of React Hooks?', options: ['Manage state in functional components', 'Directly manipulate the DOM', 'Handle CSS styling', 'Create database schemas'], correctAnswer: 'Manage state in functional components', topic: 'React' },
+      { id: 'q2', question: 'In Node.js, what does the "fs" module handle?', options: ['File System operations', 'Fast Security', 'Frontend Styling', 'Functional Storage'], correctAnswer: 'File System operations', topic: 'Node.js' },
+      { id: 'q3', question: 'Which of the following is a NoSQL database?', options: ['MongoDB', 'PostgreSQL', 'MySQL', 'SQLite'], correctAnswer: 'MongoDB', topic: 'Databases' },
+      { id: 'q4', question: 'What does CSS stand for?', options: ['Cascading Style Sheets', 'Creative Style Sheets', 'Computer Style Sheets', 'Colorful Style Sheets'], correctAnswer: 'Cascading Style Sheets', topic: 'CSS' },
+      { id: 'q5', question: 'What is the default port for an Express server?', options: ['3000', '8080', '5000', '443'], correctAnswer: '3000', topic: 'Express' }
+    ]
+    res.json({ questions: mockQuestions, difficulty, note: 'Mock Data' })
   } catch (error) {
     console.error('Get questions error:', error?.message || error)
     res.status(500).json({ error: error?.message || 'Failed to generate questions' })
