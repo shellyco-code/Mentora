@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyBJWRsjj1th5Ak4axIR6TEn8k0NEKRVxfA'
+const API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyDKJj5ioGAr0cwrN4LSTA6jyu5z_yTKXrA'
 
 if (!API_KEY) {
   console.error('❌ GEMINI_API_KEY is missing from .env')
