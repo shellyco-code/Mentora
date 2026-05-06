@@ -21,7 +21,17 @@ export const getProgress = async (req, res) => {
       return res.json(initialProgress)
     }
 
-    res.json(progressDoc.data())
+    // Calculate a "real" streak based on days since account creation
+    const userDoc = await db.collection('users').doc(userId).get()
+    const userData = userDoc.data()
+    let streak = 0
+    if (userData && userData.createdAt) {
+      const createdDate = new Date(userData.createdAt)
+      const diffTime = Math.abs(new Date() - createdDate)
+      streak = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    }
+
+    res.json({ ...progressDoc.data(), streak })
   } catch (error) {
     console.error('Get progress error:', error)
     res.status(500).json({ error: 'Failed to get progress' })

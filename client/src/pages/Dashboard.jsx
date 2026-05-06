@@ -116,7 +116,7 @@ const Dashboard = () => {
           </div>
           <div className="text-right">
             <p className="text-xs text-gray-600 uppercase tracking-widest mb-1">Current Streak</p>
-            <p className="text-3xl font-bold text-primary">{progress?.streak || 12} days</p>
+            <p className="text-3xl font-bold text-primary">{progress?.streak || 0} days</p>
           </div>
         </div>
 
