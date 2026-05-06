@@ -28,7 +28,20 @@ export const generateRoadmap = async (req, res) => {
       quizData = doc.results || doc
     }
 
-    const roadmap = await aiService.generateRoadmap(userData, quizData)
+    let roadmap;
+    try {
+      roadmap = await aiService.generateRoadmap(userData, quizData)
+    } catch (aiError) {
+      console.warn('Roadmap AI generation failed, using emergency mock fallback:', aiError.message)
+      roadmap = {
+        title: `Career Roadmap for ${userData.targetCareer || 'Software Developer'}`,
+        phases: [
+          { month: "Month 1-2", focus: "Core Fundamentals", tasks: ["Master JavaScript ES6+", "Deep dive into React Hooks", "Understand basic CSS Flexbox/Grid"] },
+          { month: "Month 3-4", focus: "Backend & APIs", tasks: ["Learn Node.js & Express", "Integrate MongoDB/Firebase", "Master REST API principles"] },
+          { month: "Month 5-6", focus: "Deployment & Advanced Topics", tasks: ["Learn Docker basics", "Build a production-ready portfolio", "Practice System Design concepts"] }
+        ]
+      }
+    }
 
     const roadmapDoc = {
       userId,
