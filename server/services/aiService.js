@@ -1,20 +1,27 @@
-import { getGeminiModel } from '../config/geminiConfig.js'
+import OpenAI from 'openai'
 
-// AI Service: Central class for orchestrating calls to Google Gemini Generative AI
+const GROQ_KEY = process.env.GROQ_API_KEY
+
+const groq = new OpenAI({
+  apiKey: GROQ_KEY,
+  baseURL: 'https://api.groq.com/openai/v1'
+})
+
+// AI Service: Central class for orchestrating calls to Groq AI (Llama 3.3 70B)
 class AIService {
-  // getModel: Fetches the configured Gemini model (Flash 1.5) from centralized config
-  getModel() {
-    return getGeminiModel()
-  }
 
   // chat: Low-level utility to send a raw prompt and receive a string response from AI
   async chat(prompt) {
-    const model = this.getModel()
     try {
-      const result = await model.generateContent(prompt)
-      return result.response.text()
+      const result = await groq.chat.completions.create({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.9,
+        max_tokens: 4096
+      })
+      return result.choices[0].message.content
     } catch (err) {
-      console.error('Gemini error:', err?.message)
+      console.error('Groq AI error:', err?.message)
       throw err
     }
   }
