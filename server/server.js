@@ -31,7 +31,7 @@ app.get('/api/health', (req, res) => {
 })
 
 app.get('/api/version', (req, res) => {
-  res.json({ version: '1.0.5', updated: 'May 5 - YouTube Fix' })
+  res.json({ version: '1.0.6', updated: 'May 6 - Gemini Model Fix' })
 })
 
 app.use('/api/auth', authRoutes)
