@@ -8,3 +8,4 @@ router.get('/', getProfile)
 router.put('/', updateProfile)
 
 export default router
+ 
