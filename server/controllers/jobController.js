@@ -20,8 +20,8 @@ export const getJobRecommendations = async (req, res) => {
     const skills = userData.skills?.split(',').map(s => s.trim()) || []
     
     // Check if Adzuna API keys are configured
-    const appId = process.env.ADZUNA_APP_ID
-    const appKey = process.env.ADZUNA_APP_KEY
+    const appId = process.env.ADZUNA_APP_ID || '20a31ead'
+    const appKey = process.env.ADZUNA_APP_KEY || 'c135b8df0f7843dfe01976e855cf86ef'
     
     let recommendations;
 

@@ -3,7 +3,7 @@ import { db } from '../config/firebaseConfig.js'
 export const getLearningRecommendations = async (req, res) => {
   try {
     const userId = req.user.uid
-    const apiKey = process.env.YOUTUBE_API_KEY
+    const apiKey = process.env.YOUTUBE_API_KEY || 'YOUTUBE_API_KEY_REMOVED'
 
     // Fetch user profile for context
     const userDoc = await db.collection('users').doc(userId).get()
