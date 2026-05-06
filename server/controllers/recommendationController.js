@@ -15,12 +15,7 @@ export const getLearningRecommendations = async (req, res) => {
 
     const skillGaps = userData.resumeAnalysis.skillGaps || []
     
-    if (skillGaps.length === 0) {
-      return res.json({ courses: [] })
-    }
-
-    // Use only the first 2-3 skill gaps to keep API calls efficient
-    const targetSkills = skillGaps.slice(0, 3)
+    const targetSkills = skillGaps.length > 0 ? skillGaps.slice(0, 3) : ['React', 'Node.js', 'System Design']
     let allCourses = []
 
     if (apiKey) {
