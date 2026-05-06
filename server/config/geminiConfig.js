@@ -12,7 +12,7 @@ const genAI = new GoogleGenerativeAI(API_KEY)
 
 export const getGeminiModel = () => {
   return genAI.getGenerativeModel({ 
-    model: 'gemma-3-4b-it',
+    model: 'gemini-1.5-flash',
     generationConfig: {
       temperature: 0.9,
       topP: 0.95,
