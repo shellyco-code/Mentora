@@ -1,6 +1,6 @@
+import 'dotenv/config.js'
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import authRoutes from './routes/authRoutes.js'
 import profileRoutes from './routes/profileRoutes.js'
 import resumeRoutes from './routes/resumeRoutes.js'
@@ -11,12 +11,10 @@ import jobRoutes from './routes/jobRoutes.js'
 import recommendationRoutes from './routes/recommendationRoutes.js'
 import { verifyToken } from './middlewares/authMiddleware.js'
 
-dotenv.config()
-
 const app = express()
 const PORT = process.env.PORT || 5000
 
-// CORS (Cross-Origin Resource Sharing): Security feature to allow only our specific frontend to talk to this backend
+
 app.use(cors({
   origin: process.env.CLIENT_URL || '*',
   credentials: true
