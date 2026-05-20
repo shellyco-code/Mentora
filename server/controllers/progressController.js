@@ -120,16 +120,20 @@ export const generateDailyTasks = async (req, res) => {
       }
     }
 
-    // All retries exhausted - Emergency Mock Fallback
-    console.error('Generate daily tasks error: all retries failed. Using mock fallback.')
+    // All retries exhausted - Emergency Dynamic Fallback
+    console.error('Generate daily tasks error: all retries failed. Using dynamic fallback.')
+    
+    const career = profile.targetCareer || 'Software Development'
+    const skills = userData?.resumeAnalysis?.skillGaps || profile.skills?.split(',') || ['Fundamentals', 'Projects', 'Concepts']
+    
     const mockTasks = [
-      { id: 't1', title: 'Review JavaScript Closures', description: 'Understand lexical scoping and closure patterns', type: 'Learning', duration: '45 min', priority: 'high', completed: false },
-      { id: 't2', title: 'Build a REST API endpoint', description: 'Create a CRUD endpoint using Express.js', type: 'Practice', duration: '60 min', priority: 'high', completed: false },
-      { id: 't3', title: 'Read React Official Docs', description: 'Study useEffect cleanup and dependency arrays', type: 'Reading', duration: '30 min', priority: 'medium', completed: false },
-      { id: 't4', title: 'CSS Grid Layout Challenge', description: 'Build a responsive dashboard layout using CSS Grid', type: 'Practice', duration: '45 min', priority: 'medium', completed: false },
-      { id: 't5', title: 'Database Schema Design', description: 'Design a normalized schema for a blog application', type: 'Project', duration: '60 min', priority: 'high', completed: false },
-      { id: 't6', title: 'Git Branching Practice', description: 'Practice feature branching and merge conflict resolution', type: 'Practice', duration: '30 min', priority: 'low', completed: false },
-      { id: 't7', title: 'System Design: URL Shortener', description: 'Design the architecture for a URL shortening service', type: 'Learning', duration: '45 min', priority: 'medium', completed: false }
+      { id: 't1', title: `Review ${skills[0]} Fundamentals`, description: `Deep dive into the core concepts of ${skills[0]} for a ${career} role.`, type: 'Learning', duration: '45 min', priority: 'high', completed: false },
+      { id: 't2', title: `Build a ${skills[1] || 'Simple'} Feature`, description: `Implement a practical feature using ${skills[1] || 'standard tools'} in your tech stack.`, type: 'Practice', duration: '60 min', priority: 'high', completed: false },
+      { id: 't3', title: `Read ${career} Best Practices`, description: `Study industry-standard documentation and design patterns for ${career}.`, type: 'Reading', duration: '30 min', priority: 'medium', completed: false },
+      { id: 't4', title: `${skills[2] || 'Advanced'} Layout Challenge`, description: `Solve a complex implementation problem involving ${skills[2] || 'advanced logic'}.`, type: 'Practice', duration: '45 min', priority: 'medium', completed: false },
+      { id: 't5', title: 'Project Documentation', description: 'Update your portfolio project with clear technical documentation.', type: 'Project', duration: '60 min', priority: 'high', completed: false },
+      { id: 't6', title: 'Git Workflow Exercise', description: 'Practice professional version control workflows used in tech teams.', type: 'Practice', duration: '30 min', priority: 'low', completed: false },
+      { id: 't7', title: `System Architecture: ${career}`, description: `Understand how scalable ${career} applications are architected.`, type: 'Learning', duration: '45 min', priority: 'medium', completed: false }
     ]
     const mockProgress = {
       userId,
@@ -137,7 +141,7 @@ export const generateDailyTasks = async (req, res) => {
       totalTasks: mockTasks.length,
       completedTasks: 0,
       overallProgress: 0,
-      skillScore: 0,
+      skillScore: quizResults?.score || 0,
       streak: 0,
       generatedAt: new Date().toISOString(),
       recentActivities: []
@@ -146,21 +150,7 @@ export const generateDailyTasks = async (req, res) => {
     res.json(mockProgress)
   } catch (error) {
     console.error('Generate daily tasks error:', error.message || error)
-    // Ultimate fallback - return mock data even if everything crashes
-    res.json({
-      dailyTasks: [
-        { id: 't1', title: 'Review JavaScript Closures', description: 'Understand lexical scoping and closure patterns', type: 'Learning', duration: '45 min', priority: 'high', completed: false },
-        { id: 't2', title: 'Build a REST API endpoint', description: 'Create a CRUD endpoint using Express.js', type: 'Practice', duration: '60 min', priority: 'high', completed: false },
-        { id: 't3', title: 'Read React Official Docs', description: 'Study useEffect cleanup and dependency arrays', type: 'Reading', duration: '30 min', priority: 'medium', completed: false }
-      ],
-      totalTasks: 3,
-      completedTasks: 0,
-      overallProgress: 0,
-      skillScore: 0,
-      streak: 0,
-      generatedAt: new Date().toISOString(),
-      recentActivities: []
-    })
+    res.status(500).json({ error: 'Failed to generate tasks. Please try again later.' })
   }
 }
 
