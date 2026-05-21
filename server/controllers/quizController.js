@@ -89,13 +89,23 @@ export const submitQuiz = async (req, res) => {
     }
 
     if (!results) {
-      console.warn('Submit quiz evaluation failed after retries. Using mock grading.')
-      // Calculate a real score based on answers if possible, or just mock it
+      console.warn('Submit quiz evaluation failed after retries. Using manual grading fallback.')
+      
+      // Calculate a real score manually based on questions/answers
+      let correctCount = 0
+      questions.forEach((q, i) => {
+        if (answers[i] === q.correctAnswer) correctCount++
+      })
+      const manualScore = Math.round((correctCount / questions.length) * 100)
+
       results = {
-        score: 80,
-        feedback: "Excellent work! You have a solid grasp of the core concepts. Focus on deepening your understanding of advanced patterns to further improve.",
-        strengths: ["Core Fundamentals", "Syntax Knowledge"],
-        weaknesses: ["Advanced Optimization", "Architecture"]
+        score: manualScore,
+        feedback: manualScore >= 70 
+          ? "Great job! You have a solid understanding of the topics covered." 
+          : "Good effort! Keep practicing these concepts to improve your score.",
+        strengths: ["Manual Assessment"],
+        weaknesses: ["AI Feedback Unavailable"],
+        recommendations: ["Review the questions you missed to strengthen your knowledge."]
       }
     }
 
