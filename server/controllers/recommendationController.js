@@ -9,18 +9,35 @@ export const getLearningRecommendations = async (req, res) => {
     const userDoc = await db.collection('users').doc(userId).get()
     const userData = userDoc.data()
     
-    if (!userData || !userData.resumeAnalysis) {
-      return res.status(400).json({ error: 'Please upload and analyze your resume first to get targeted recommendations.' })
+    if (!userData) {
+      return res.status(400).json({ error: 'User profile not found.' })
     }
 
-    const skillGaps = userData.resumeAnalysis.skillGaps || []
+    // Determine target skills for recommendations
+    let targetSkills = []
     
-    const targetSkills = skillGaps.length > 0 ? skillGaps.slice(0, 3) : ['React', 'Node.js', 'System Design']
+    // Priority 1: Skill gaps from resume analysis
+    if (userData.resumeAnalysis?.skillGaps?.length > 0) {
+      targetSkills = userData.resumeAnalysis.skillGaps.slice(0, 3)
+    } 
+    // Priority 2: Skills listed in profile
+    else if (userData.skills) {
+      targetSkills = userData.skills.split(',').map(s => s.trim()).slice(0, 3)
+    }
+    // Priority 3: Target career
+    else if (userData.targetCareer) {
+      targetSkills = [userData.targetCareer]
+    }
+    // Final fallback
+    else {
+      targetSkills = ['Full Stack Development', 'Data Structures', 'System Design']
+    }
+    
     let allCourses = []
 
     if (apiKey) {
       try {
-        console.log('Fetching real courses from YouTube API...')
+        console.log(`Fetching real courses from YouTube for: ${targetSkills.join(', ')}`)
         for (const skill of targetSkills) {
           const response = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=2&q=${encodeURIComponent(skill + ' full course for beginners')}&type=video&key=${apiKey}`)
           const data = await response.json()
