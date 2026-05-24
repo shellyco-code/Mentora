@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import MentoraLogo from '../MentoraLogo'
@@ -50,7 +51,7 @@ const menuItems = [
   { path: '/jobs',      label: 'Jobs',      icon: icons.jobs },
 ]
 
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen, onClose }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { logout } = useAuth()
@@ -60,53 +61,67 @@ const Sidebar = () => {
   }
 
   return (
-    <div className="w-64 bg-gray-950 h-screen fixed left-0 top-0 flex flex-col border-r border-gray-900">
-      {/* Logo */}
-      <div className="p-6 border-b border-gray-900 flex items-center gap-3">
-        <MentoraLogo className="h-7 w-7" />
-        <div>
-          <h1 className="text-base font-bold text-white tracking-wide">Mentora</h1>
-          <p className="text-xs text-gray-600 font-mono">AI Career Coach</p>
+    <>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 bg-black/60 z-40 lg:hidden" onClick={onClose} />
+      )}
+
+      <div className={`w-64 bg-gray-950 h-screen fixed left-0 top-0 flex flex-col border-r border-gray-900 z-50 transition-transform duration-300 lg:translate-x-0 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Logo */}
+        <div className="p-6 border-b border-gray-900 flex items-center gap-3">
+          <MentoraLogo className="h-7 w-7" />
+          <div>
+            <h1 className="text-base font-bold text-white tracking-wide">Mentora</h1>
+            <p className="text-xs text-gray-600 font-mono">AI Career Coach</p>
+          </div>
+          {/* Mobile close button */}
+          <button onClick={onClose} className="ml-auto lg:hidden text-gray-500 hover:text-white p-1">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
+          {menuItems.map((item) => {
+            const active = location.pathname === item.path
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group ${
+                  active
+                    ? 'bg-primary/10 text-primary border border-primary/20'
+                    : 'text-gray-500 hover:bg-gray-900 hover:text-gray-200 border border-transparent'
+                }`}
+              >
+                <span className={active ? 'text-primary' : 'text-gray-600 group-hover:text-gray-300 transition-colors'}>
+                  {item.icon}
+                </span>
+                <span className="text-sm font-medium">{item.label}</span>
+                {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* Logout */}
+        <div className="p-3 border-t border-gray-900">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-gray-900 hover:text-gray-300 transition-all border border-transparent"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span className="text-sm font-medium">Logout</span>
+          </button>
         </div>
       </div>
-
-      {/* Nav */}
-      <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
-        {menuItems.map((item) => {
-          const active = location.pathname === item.path
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 group ${
-                active
-                  ? 'bg-primary/10 text-primary border border-primary/20'
-                  : 'text-gray-500 hover:bg-gray-900 hover:text-gray-200 border border-transparent'
-              }`}
-            >
-              <span className={active ? 'text-primary' : 'text-gray-600 group-hover:text-gray-300 transition-colors'}>
-                {item.icon}
-              </span>
-              <span className="text-sm font-medium">{item.label}</span>
-              {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary" />}
-            </Link>
-          )
-        })}
-      </nav>
-
-      {/* Logout */}
-      <div className="p-3 border-t border-gray-900">
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 hover:bg-gray-900 hover:text-gray-300 transition-all border border-transparent"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span className="text-sm font-medium">Logout</span>
-        </button>
-      </div>
-    </div>
+    </>
   )
 }
 
