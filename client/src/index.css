@@ -3,8 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  html, body {
+    @apply bg-black text-gray-100 antialiased overflow-x-hidden w-full;
+  }
   body {
-    @apply bg-black text-gray-100 antialiased;
     background-image: 
       radial-gradient(circle at 20% 20%, rgba(13, 235, 161, 0.03) 0%, transparent 40%),
       radial-gradient(circle at 80% 80%, rgba(13, 235, 161, 0.03) 0%, transparent 40%);
@@ -66,4 +68,13 @@
 
 .animate-pulse-slow {
   animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

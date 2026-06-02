@@ -125,7 +125,6 @@ const Progress = () => {
         {error && (
           <div className="p-3 rounded-lg bg-red-900/20 border border-red-700/40 text-red-400 text-sm">{error}</div>
         )}
-
         {/* Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="card">
