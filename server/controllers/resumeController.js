@@ -15,8 +15,14 @@ export const uploadResume = async (req, res) => {
     let resumeText = ''
     try {
       const pdfData = await pdfParse(file.buffer)
+      if (pdfData.numpages > 5) {
+        return res.status(400).json({ error: 'Resume exceeds maximum length of 5 pages. Please upload a shorter resume.' })
+      }
       resumeText = pdfData.text
     } catch (pdfErr) {
+      if (pdfErr.message.includes('Resume exceeds maximum length')) {
+        return res.status(400).json({ error: pdfErr.message })
+      }
       console.warn('PDF parse warning:', pdfErr.message)
     }
 
