@@ -276,11 +276,17 @@ const Profile = () => {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelCls}>Primary Role *</label>
-              <select className={inputCls} value={about.primaryRole} onChange={e => setAbout({ ...about, primaryRole: e.target.value })}>
-                <option value="">Select role</option>
-                {ROLES.map(r => <option key={r}>{r}</option>)}
-              </select>
+              <label className={labelCls}>Primary Role / Target Career *</label>
+              <input 
+                className={inputCls} 
+                value={about.primaryRole} 
+                onChange={e => setAbout({ ...about, primaryRole: e.target.value })} 
+                placeholder="e.g. Web3 Developer, Generative AI Engineer..." 
+                list="roles-list"
+              />
+              <datalist id="roles-list">
+                {ROLES.map(r => <option key={r} value={r} />)}
+              </datalist>
             </div>
             <div>
               <label className={labelCls}>Years of Experience</label>
@@ -291,16 +297,23 @@ const Profile = () => {
             </div>
           </div>
           <div>
-            <label className={labelCls}>Open to Roles</label>
+            <label className={labelCls}>Open to Roles (Add custom roles)</label>
             <div className="flex flex-wrap gap-2 mb-2">
               {about.openRoles.map(r => (
                 <SkillTag key={r} skill={r} onRemove={role => setAbout({ ...about, openRoles: about.openRoles.filter(x => x !== role) })} />
               ))}
             </div>
-            <select className={inputCls} value={openRoleInput} onChange={e => { setOpenRoleInput(e.target.value); addOpenRole(e.target.value) }}>
-              <option value="">+ Add role</option>
-              {ROLES.filter(r => !about.openRoles.includes(r)).map(r => <option key={r}>{r}</option>)}
-            </select>
+            <div className="flex gap-2">
+              <input 
+                className={inputCls} 
+                value={openRoleInput} 
+                onChange={e => setOpenRoleInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOpenRole(openRoleInput.trim()) } }}
+                placeholder="e.g. Solidity Developer, Prompt Engineer"
+                list="roles-list"
+              />
+              <button type="button" onClick={() => addOpenRole(openRoleInput.trim())} className="btn-secondary text-sm py-2 px-4 whitespace-nowrap">Add</button>
+            </div>
           </div>
           <div>
             <label className={labelCls}>Bio</label>
