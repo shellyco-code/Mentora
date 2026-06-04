@@ -70,11 +70,16 @@ export const generateDailyTasks = async (req, res) => {
       .get()
     if (!roadmapSnap.empty) roadmap = roadmapSnap.docs[0].data()
 
+    let skillGaps = []
+    if (profile.resumeAnalysis && profile.resumeAnalysis.skillGaps) {
+      skillGaps = profile.resumeAnalysis.skillGaps
+    }
+
     // Retry Logic: Attempts the request multiple times to handle transient AI failures (Resiliency)
     let lastError = null
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const result = await aiService.generateDailyTasks(profile, quizResults, roadmap)
+        const result = await aiService.generateDailyTasks(profile, quizResults, roadmap, skillGaps)
         // Debugging: Logging object keys to verify AI response structure
         console.log(`Tasks attempt ${attempt} raw result keys:`, Object.keys(result || {}))
         const tasks = result?.tasks
