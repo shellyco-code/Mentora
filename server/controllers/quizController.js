@@ -29,10 +29,23 @@ export const getQuestions = async (req, res) => {
       console.warn('Could not fetch last quiz score for difficulty:', err.message)
     }
 
+    let completedTasks = []
+    try {
+      const progressDoc = await db.collection('progress').doc(userId).get()
+      if (progressDoc.exists) {
+        const pData = progressDoc.data()
+        if (pData.dailyTasks && Array.isArray(pData.dailyTasks)) {
+          completedTasks = pData.dailyTasks.filter(t => t.completed).map(t => t.title)
+        }
+      }
+    } catch (err) {
+      console.warn('Could not fetch completed tasks for quiz context:', err.message)
+    }
+
     let lastError = null
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const result = await aiService.generateQuizQuestions(career, difficulty)
+        const result = await aiService.generateQuizQuestions(career, difficulty, completedTasks)
         console.log(`Quiz attempt ${attempt} raw result keys:`, Object.keys(result || {}))
         const questions = result?.questions
 
