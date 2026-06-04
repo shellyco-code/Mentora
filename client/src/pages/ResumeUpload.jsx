@@ -82,6 +82,10 @@ const ResumeUpload = () => {
 
   const handleFile = (f) => {
     if (f?.type === 'application/pdf') {
+      if (f.size > 5 * 1024 * 1024) {
+        setMessage({ text: 'File is too large. Maximum size is 5MB.', type: 'error' })
+        return
+      }
       setFile(f)
       setMessage({ text: '', type: '' })
     } else {
@@ -151,7 +155,7 @@ const ResumeUpload = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-3xl mx-auto space-y-6">
         <div>
           <h1 className="page-heading">Resume Analysis</h1>
           <p className="page-subheading">Upload your resume for AI-powered insights and skill gap analysis</p>
@@ -209,7 +213,7 @@ const ResumeUpload = () => {
               </svg>
             </div>
             <p className="text-white font-medium mb-1">Drop your resume here</p>
-            <p className="text-gray-600 text-sm mb-4">PDF format only · Max 10MB</p>
+            <p className="text-gray-600 text-sm mb-4">PDF format only · Max 5MB</p>
 
             <input type="file" accept=".pdf" onChange={e => handleFile(e.target.files[0])}
               className="hidden" id="resume-upload" />
@@ -228,11 +232,11 @@ const ResumeUpload = () => {
           </div>
         </div>}
 
-        {file && !analysis && (
+        {file && (
           <button onClick={handleUpload} disabled={uploading || analyzing}
             className="btn-primary w-full disabled:opacity-50 flex items-center justify-center gap-2">
             {(uploading || analyzing) && <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />}
-            {uploading ? 'Uploading...' : analyzing ? 'Analysing with AI...' : 'Upload & Analyse'}
+            {uploading ? 'Uploading...' : analyzing ? 'Analysing with AI...' : 'Upload New Resume & Analyse'}
           </button>
         )}
 
