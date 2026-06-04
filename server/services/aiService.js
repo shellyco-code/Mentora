@@ -58,11 +58,18 @@ Format as valid JSON only.
     }
   }
 
-  async generateQuizQuestions(career, difficulty = 'intermediate') {
+  async generateQuizQuestions(career, difficulty = 'intermediate', completedTasks = []) {
     const seed = Math.floor(Math.random() * 1000000)
+    
+    let contextStr = `Context Seed: ${seed}`
+    if (completedTasks && completedTasks.length > 0) {
+      contextStr += `\n    The user has recently completed studying the following topics/tasks: ${completedTasks.join(', ')}. 
+    CRITICAL INSTRUCTION: You MUST heavily prioritize generating questions that specifically test their knowledge on these recently completed tasks to verify they actually learned the material.`
+    }
+
     const prompt = `Generate 10 unique technical quiz questions for a ${career} position at ${difficulty} level.
     
-    Context Seed: ${seed}
+    ${contextStr}
     
     Return ONLY valid JSON. No markdown. No explanation. No extra text. Just the JSON object below:
     {"questions":[{"id":"q1","question":"Question text here","options":["Option A","Option B","Option C","Option D"],"correctAnswer":"Option A","topic":"Topic name"}]}
@@ -174,9 +181,12 @@ Format as valid JSON only.
     return result
   }
 
-  async generateRoadmap(profile, quizResults) {
+  async generateRoadmap(profile, quizResults, skillGaps = []) {
     const prompt = `Create a 6-month career roadmap for a ${profile.targetCareer || 'Software Developer'}.
 Skills: ${profile.skills || 'beginner'}, Experience: ${profile.experience || 'fresher'}, Quiz Score: ${quizResults?.score || 'not taken'}.
+
+CRITICAL INSTRUCTION: The user has the following explicitly identified SKILL GAPS: ${skillGaps.length > 0 ? skillGaps.join(', ') : 'General Concepts'}. 
+You MUST heavily design this roadmap to aggressively target and close these exact skill gaps. The phases and tasks must directly address these deficiencies.
 
 Return ONLY valid JSON. No markdown. No explanation:
 {"title":"Roadmap title","description":"Overview","phases":[{"title":"Phase name","duration":"Month 1-2","tasks":[{"title":"Task name","description":"What to do","resources":[{"name":"freeCodeCamp - HTML Basics","url":"https://www.freecodecamp.org/learn/responsive-web-design/"}]}]}]}
@@ -194,9 +204,18 @@ Rules:
     return this.normalizeRoadmapResponse(parsed)
   }
 
-  async generateDailyTasks(profile, quizResults, roadmap) {
+  async generateDailyTasks(profile, quizResults, roadmap, skillGaps = []) {
+    let roadmapContext = ''
+    if (roadmap && roadmap.phases) {
+      roadmapContext = `\nCurrent Roadmap Context: ${JSON.stringify(roadmap.phases.map(p => ({ title: p.title, tasks: p.tasks.map(t => t.title) })))}`
+    }
+
     const prompt = `Generate 7 personalized daily learning tasks for a ${profile.targetCareer || 'Software Developer'} learner.
 Skills: ${profile.skills || 'beginner'}, Experience: ${profile.experience || 'fresher'}, Quiz Score: ${quizResults?.score || 'not taken'}.
+Identified Skill Gaps: ${skillGaps.length > 0 ? skillGaps.join(', ') : 'General Concepts'}.
+${roadmapContext}
+
+CRITICAL INSTRUCTION: These daily tasks MUST be directly extracted from the "Identified Skill Gaps" and the "Current Roadmap Context" if provided. Do NOT hallucinate random tasks. Look at what the user is supposed to be learning in their roadmap and break those larger roadmap goals down into actionable, bite-sized daily tasks.
 
 Return ONLY valid JSON. No markdown. No explanation:
 {"tasks":[{"id":"t1","title":"Task title","description":"What to do","type":"Learning","duration":"45 min","priority":"high","completed":false}]}
