@@ -92,6 +92,17 @@ const Profile = () => {
   const [projForm, setProjForm] = useState({ title: '', link: '', startDate: '', endDate: '', description: '' })
   const [social, setSocial] = useState({ website: '', linkedin: '', github: '', twitter: '' })
   const [accomplishments, setAccomplishments] = useState('')
+  const [modalError, setModalError] = useState('')
+
+  const isValidUrl = (string) => {
+    if (!string) return true // optional fields are fine if empty
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;  
+    }
+  }
 
   useEffect(() => {
     profileAPI.get().then(res => {
@@ -114,6 +125,22 @@ const Profile = () => {
   const handleSave = async () => {
     setLoading(true)
     setMessage('')
+    
+    // Validate Phone
+    const phoneClean = about.phone.replace(/[\s-]/g, '')
+    if (phoneClean && phoneClean.length < 10) {
+      setMessage('Phone number must be at least 10 digits.')
+      setLoading(false)
+      return
+    }
+
+    // Validate Social Links
+    if (!isValidUrl(social.website) || !isValidUrl(social.linkedin) || !isValidUrl(social.github) || !isValidUrl(social.twitter)) {
+      setMessage('One or more social links are invalid URLs. Must include http:// or https://')
+      setLoading(false)
+      return
+    }
+
     const payload = {
       fullName: about.fullName, phone: about.phone, location: about.location,
       targetCareer: about.primaryRole, yearsOfExperience: about.yearsOfExperience,
@@ -145,11 +172,21 @@ const Profile = () => {
   }
 
   const openExpModal = (idx = null) => {
+    setModalError('')
     setEditExpIdx(idx)
     setExpForm(idx !== null ? { ...experiences[idx] } : { company: '', title: '', startDate: '', endDate: '', current: false, description: '' })
     setExpModal(true)
   }
   const saveExp = () => {
+    if (!expForm.company.trim() || !expForm.title.trim()) {
+      return setModalError('Company and Title are required.')
+    }
+    if (expForm.startDate && expForm.endDate && !expForm.current) {
+      if (new Date(expForm.startDate) > new Date(expForm.endDate)) {
+        return setModalError('Start Date cannot be after End Date.')
+      }
+    }
+    setModalError('')
     const updated = [...experiences]
     if (editExpIdx !== null) updated[editExpIdx] = expForm
     else updated.push(expForm)
@@ -158,11 +195,21 @@ const Profile = () => {
   }
 
   const openEduModal = (idx = null) => {
+    setModalError('')
     setEditEduIdx(idx)
     setEduForm(idx !== null ? { ...educations[idx] } : { school: '', degree: '', field: '', startYear: '', endYear: '' })
     setEduModal(true)
   }
   const saveEdu = () => {
+    if (!eduForm.school.trim()) {
+      return setModalError('School / University is required.')
+    }
+    if (eduForm.startYear && eduForm.endYear) {
+      if (parseInt(eduForm.startYear) > parseInt(eduForm.endYear)) {
+        return setModalError('Start Year cannot be after End Year.')
+      }
+    }
+    setModalError('')
     const updated = [...educations]
     if (editEduIdx !== null) updated[editEduIdx] = eduForm
     else updated.push(eduForm)
@@ -171,11 +218,24 @@ const Profile = () => {
   }
 
   const openProjModal = (idx = null) => {
+    setModalError('')
     setEditProjIdx(idx)
     setProjForm(idx !== null ? { ...projects[idx] } : { title: '', link: '', startDate: '', endDate: '', description: '' })
     setProjModal(true)
   }
   const saveProj = () => {
+    if (!projForm.title.trim()) {
+      return setModalError('Project Title is required.')
+    }
+    if (projForm.startDate && projForm.endDate) {
+      if (new Date(projForm.startDate) > new Date(projForm.endDate)) {
+        return setModalError('Start Date cannot be after End Date.')
+      }
+    }
+    if (!isValidUrl(projForm.link)) {
+      return setModalError('Project Link must be a valid URL (e.g. https://github.com/...)')
+    }
+    setModalError('')
     const updated = [...projects]
     if (editProjIdx !== null) updated[editProjIdx] = projForm
     else updated.push(projForm)
@@ -336,10 +396,14 @@ const Profile = () => {
           <textarea
             className={inputCls}
             rows={5}
+            maxLength={1000}
             value={accomplishments}
             onChange={e => setAccomplishments(e.target.value)}
-            placeholder="Completed XYZ certification, Won hackathon at ABC, Open source contributor..."
+            placeholder="Completed XYZ certification, Won hackathon at ABC, Open source contributor... (Max 1000 characters)"
           />
+          <div className="text-right mt-1 text-xs text-gray-500">
+            {accomplishments.length} / 1000
+          </div>
         </Section>
 
         {/* SAVE */}
@@ -354,6 +418,7 @@ const Profile = () => {
       {/* EXPERIENCE MODAL */}
       {expModal && (
         <Modal title={editExpIdx !== null ? 'Edit Experience' : 'Add Experience'} onClose={() => setExpModal(false)} onSave={saveExp}>
+          {modalError && <p className="text-red-400 text-xs mb-2 bg-red-900/20 p-2 rounded border border-red-900/50">{modalError}</p>}
           <div className="space-y-3">
             <div>
               <label className={labelCls}>Company *</label>
@@ -388,6 +453,7 @@ const Profile = () => {
       {/* EDUCATION MODAL */}
       {eduModal && (
         <Modal title={editEduIdx !== null ? 'Edit Education' : 'Add Education'} onClose={() => setEduModal(false)} onSave={saveEdu}>
+          {modalError && <p className="text-red-400 text-xs mb-2 bg-red-900/20 p-2 rounded border border-red-900/50">{modalError}</p>}
           <div className="space-y-3">
             <div>
               <label className={labelCls}>School / University *</label>
@@ -418,6 +484,7 @@ const Profile = () => {
       {/* PROJECT MODAL */}
       {projModal && (
         <Modal title={editProjIdx !== null ? 'Edit Project' : 'Add Project'} onClose={() => setProjModal(false)} onSave={saveProj}>
+          {modalError && <p className="text-red-400 text-xs mb-2 bg-red-900/20 p-2 rounded border border-red-900/50">{modalError}</p>}
           <div className="space-y-3">
             <div>
               <label className={labelCls}>Project Title *</label>
