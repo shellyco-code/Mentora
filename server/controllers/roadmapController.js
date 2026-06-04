@@ -28,10 +28,15 @@ export const generateRoadmap = async (req, res) => {
       quizData = doc.results || doc
     }
 
+    let skillGaps = []
+    if (userData.resumeAnalysis && userData.resumeAnalysis.skillGaps) {
+      skillGaps = userData.resumeAnalysis.skillGaps
+    }
+
     let roadmap;
     try {
       // Race the AI call against a 10-second timeout for the presentation
-      const aiPromise = aiService.generateRoadmap(userData, quizData)
+      const aiPromise = aiService.generateRoadmap(userData, quizData, skillGaps)
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('AI Generation Timeout')), 10000)
       )
